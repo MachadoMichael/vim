@@ -1,0 +1,58 @@
+using MMP.Contexts;
+using MMP.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace MMP.Services
+{
+    public interface IEntitiyService
+    {
+        Task<List<Entitiy>> GetAllAsync();
+        Task<Entitiy> GetByIdAsync(Guid id);
+        Task AddAsync(Entitiy entity);
+        Task UpdateAsync(Entitiy entity);
+        Task DeleteAsync(Guid id);
+    }
+
+    public class EntitiyService : IEntitiyService
+    {
+        private readonly MMPContext _context;
+
+        public EntitiyService(MMPContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<Entitiy>> GetAllAsync()
+        {
+            return await _context.Entitiys.ToListAsync();
+        }
+
+        public async Task<Entitiy> GetByIdAsync(Guid id)
+        {
+            return await _context.Entitiys.FindAsync(id);
+        }
+
+        public async Task AddAsync(Entitiy newEntitiy)
+        {
+            _context.Entitiys.Add(newEntitiy);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Entitiy updatedEntitiy)
+        {
+            _context.Entry(updatedEntitiy).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var person = await _context.Entitiys.FindAsync(id);
+            if (person is not null)
+            {
+                _context.Entitiys.Remove(person);
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+}
+
